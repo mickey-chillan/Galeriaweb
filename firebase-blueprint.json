@@ -1,0 +1,306 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated traveler profile and preferences.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the traveler.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the traveler.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified email address.",
+          "minLength": 3,
+          "maxLength": 200
+        },
+        "seededStarter": {
+          "type": "boolean",
+          "description": "Whether initial South America and Europe destinations have been seeded."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of profile creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last profile update."
+        }
+      },
+      "required": ["uid", "displayName", "email", "seededStarter", "createdAt", "updatedAt"]
+    },
+    "TravelCountry": {
+      "title": "TravelCountry",
+      "description": "A visited country added to the traveler's atlas.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "region": {
+          "type": "string",
+          "enum": ["Sudamérica", "Europa", "Norteamérica", "Asia", "África", "Oceanía"],
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "code": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 3
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "name", "region", "code", "createdAt", "updatedAt"]
+    },
+    "TravelPin": {
+      "title": "TravelPin",
+      "description": "A pinned city or landmark inside a country with personal travel notes.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "countryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "countryName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "cityName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "region": {
+          "type": "string",
+          "enum": ["Sudamérica", "Europa", "Norteamérica", "Asia", "África", "Oceanía"],
+          "minLength": 2,
+          "maxLength": 30
+        },
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        },
+        "visitDate": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 60
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        },
+        "routeGroup": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 80
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "countryId",
+        "countryName",
+        "cityName",
+        "region",
+        "lat",
+        "lng",
+        "visitDate",
+        "notes",
+        "routeGroup",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TravelReference": {
+      "title": "TravelReference",
+      "description": "A saved place reference, route tip, or external link attached to a pin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "pinId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        "url": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "pinId", "title", "detail", "url", "createdAt"]
+    },
+    "TravelPhoto": {
+      "title": "TravelPhoto",
+      "description": "A compressed travel photograph attached to a city pin.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "pinId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "cityName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "countryName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "imageUrl": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 550000
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 240
+        },
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        },
+        "takenAt": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 60
+        },
+        "hasGps": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "pinId", "cityName", "countryName", "imageUrl", "caption", "lat", "lng", "takenAt", "hasGps", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private traveler profile document keyed by Firebase Auth UID."
+    },
+    "/users/{userId}/countries/{countryId}": {
+      "schema": { "$ref": "#/entities/TravelCountry" },
+      "description": "Countries visited by the traveler."
+    },
+    "/users/{userId}/pins/{pinId}": {
+      "schema": { "$ref": "#/entities/TravelPin" },
+      "description": "City pins placed on the 3D globe with personal notes and coordinates."
+    },
+    "/users/{userId}/references/{refId}": {
+      "schema": { "$ref": "#/entities/TravelReference" },
+      "description": "Saved references, routes, and links linked to a travel pin."
+    },
+    "/users/{userId}/photos/{photoId}": {
+      "schema": { "$ref": "#/entities/TravelPhoto" },
+      "description": "Compressed photographs linked to a travel pin."
+    }
+  }
+}

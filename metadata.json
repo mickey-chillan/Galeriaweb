@@ -1,0 +1,6 @@
+{
+  "name": "Noctis Atlas",
+  "description": "Diario interactivo de viajes con globo terráqueo nocturno 3D, pinchos de países y ciudades, notas personales, referencias y galería fotográfica.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

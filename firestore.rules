@@ -1,0 +1,214 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core helper primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isVerified() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidRegion(region) {
+      return region in ['Sudamérica', 'Europa', 'Norteamérica', 'Asia', 'África', 'Oceanía'];
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'seededStarter', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'seededStarter', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
+        && data.seededStarter is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidCountry(data, userId, countryId) {
+      return data.keys().hasAll(['id', 'ownerId', 'name', 'region', 'code', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'name', 'region', 'code', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id == countryId && isValidId(data.id)
+        && data.ownerId is string && data.ownerId == userId
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 80
+        && data.region is string && data.region.size() >= 2 && data.region.size() <= 30 && isValidRegion(data.region)
+        && data.code is string && data.code.size() >= 2 && data.code.size() <= 3
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidPin(data, userId, pinId) {
+      return data.keys().hasAll([
+          'id', 'ownerId', 'countryId', 'countryName', 'cityName',
+          'region', 'lat', 'lng', 'visitDate', 'notes', 'routeGroup', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'ownerId', 'countryId', 'countryName', 'cityName',
+          'region', 'lat', 'lng', 'visitDate', 'notes', 'routeGroup', 'createdAt', 'updatedAt'
+        ])
+        && data.id is string && data.id == pinId && isValidId(data.id)
+        && data.ownerId is string && data.ownerId == userId
+        && data.countryId is string && isValidId(data.countryId)
+        && data.countryName is string && data.countryName.size() >= 1 && data.countryName.size() <= 80
+        && data.cityName is string && data.cityName.size() >= 1 && data.cityName.size() <= 100
+        && data.region is string && data.region.size() >= 2 && data.region.size() <= 30 && isValidRegion(data.region)
+        && data.lat is number && data.lat >= -90 && data.lat <= 90
+        && data.lng is number && data.lng >= -180 && data.lng <= 180
+        && data.visitDate is string && data.visitDate.size() <= 60
+        && data.notes is string && data.notes.size() <= 8000
+        && data.routeGroup is string && data.routeGroup.size() <= 80
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidReference(data, userId, refId) {
+      return data.keys().hasAll(['id', 'ownerId', 'pinId', 'title', 'detail', 'url', 'createdAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'pinId', 'title', 'detail', 'url', 'createdAt'])
+        && data.id is string && data.id == refId && isValidId(data.id)
+        && data.ownerId is string && data.ownerId == userId
+        && data.pinId is string && isValidId(data.pinId)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 140
+        && data.detail is string && data.detail.size() <= 500
+        && data.url is string && data.url.size() <= 500
+        && data.createdAt is timestamp;
+    }
+
+    function isValidPhoto(data, userId, photoId) {
+      return data.keys().hasAll(['id', 'ownerId', 'pinId', 'cityName', 'countryName', 'imageUrl', 'caption', 'lat', 'lng', 'takenAt', 'hasGps', 'createdAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'pinId', 'cityName', 'countryName', 'imageUrl', 'caption', 'lat', 'lng', 'takenAt', 'hasGps', 'createdAt'])
+        && data.id is string && data.id == photoId && isValidId(data.id)
+        && data.ownerId is string && data.ownerId == userId
+        && data.pinId is string && isValidId(data.pinId)
+        && data.cityName is string && data.cityName.size() >= 1 && data.cityName.size() <= 100
+        && data.countryName is string && data.countryName.size() >= 1 && data.countryName.size() <= 80
+        && data.imageUrl is string && data.imageUrl.size() >= 10 && data.imageUrl.size() <= 550000
+        && data.caption is string && data.caption.size() <= 240
+        && data.lat is number && data.lat >= -90 && data.lat <= 90
+        && data.lng is number && data.lng >= -180 && data.lng <= 180
+        && data.takenAt is string && data.takenAt.size() <= 60
+        && data.hasGps is bool
+        && data.createdAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if false;
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'seededStarter', 'updatedAt']);
+      allow delete: if false;
+
+      match /countries/{countryId} {
+        allow get: if isValidId(userId) && isValidId(countryId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && existing().ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(countryId)
+          && isOwner(userId)
+          && isValidCountry(incoming(), userId, countryId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(countryId)
+          && isOwner(userId)
+          && isValidCountry(incoming(), userId, countryId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'region', 'code', 'updatedAt']);
+        allow delete: if isValidId(userId) && isValidId(countryId) && isOwner(userId);
+      }
+
+      match /pins/{pinId} {
+        allow get: if isValidId(userId) && isValidId(pinId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && existing().ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(pinId)
+          && isOwner(userId)
+          && isValidPin(incoming(), userId, pinId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId)/countries/$(incoming().countryId));
+        allow update: if isValidId(userId) && isValidId(pinId)
+          && isOwner(userId)
+          && isValidPin(incoming(), userId, pinId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            (incoming().diff(existing()).affectedKeys().hasOnly(['notes', 'visitDate', 'routeGroup', 'updatedAt'])) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['cityName', 'countryId', 'countryName', 'region', 'lat', 'lng', 'updatedAt'])
+              && exists(/databases/$(database)/documents/users/$(userId)/countries/$(incoming().countryId)))
+          );
+        allow delete: if isValidId(userId) && isValidId(pinId) && isOwner(userId);
+      }
+
+      match /references/{refId} {
+        allow get: if isValidId(userId) && isValidId(refId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && existing().ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(refId)
+          && isOwner(userId)
+          && isValidReference(incoming(), userId, refId)
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId)/pins/$(incoming().pinId));
+        allow update: if isValidId(userId) && isValidId(refId)
+          && isOwner(userId)
+          && isValidReference(incoming(), userId, refId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().pinId == existing().pinId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'detail', 'url']);
+        allow delete: if isValidId(userId) && isValidId(refId) && isOwner(userId);
+      }
+
+      match /photos/{photoId} {
+        allow get: if isValidId(userId) && isValidId(photoId) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && existing().ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(photoId)
+          && isOwner(userId)
+          && isValidPhoto(incoming(), userId, photoId)
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId)/pins/$(incoming().pinId));
+        allow update: if isValidId(userId) && isValidId(photoId)
+          && isOwner(userId)
+          && isValidPhoto(incoming(), userId, photoId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().pinId == existing().pinId
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly(['caption']);
+        allow delete: if isValidId(userId) && isValidId(photoId) && isOwner(userId);
+      }
+    }
+  }
+}
